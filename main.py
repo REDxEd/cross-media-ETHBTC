@@ -31,31 +31,6 @@ def get_daily_dataframe():
     return df
 
 
-def sma_trade_logic():
-    #dataframe for daily candle
-    symbol_df = get_daily_dataframe()
-    
-    #colluns media 9days and media 22days
-    symbol_df['9d_sma'] = symbol_df['close'].rolling(9).mean()
-    symbol_df['22d_sma'] = symbol_df['close'].rolling(22).mean()
-    
-    symbol_df.set_index('date', inplace=True)
-    symbol_df.index = pd.to_datetime(symbol_df.index, unit='ms')
-
-    symbol_df['Signal'] = np.where(symbol_df['9d_sma'] > symbol_df['22d_sma'], 1, 0)
-    
-    symbol_df['Position'] = symbol_df['Signal'].diff()
-
-    symbol_df['Buy'] = np.where(symbol_df['Position'] == 1,symbol_df['close'], np.NaN )
-    symbol_df['Sell'] = np.where(symbol_df['Position'] == -1,symbol_df['close'], np.NaN )
-
-    with open('output.txt', 'w') as f:
-        f.write(
-                symbol_df.to_string()
-               )
-    
-    buy_sell_list = symbol_df['Position'].tolist()
-    buy_or_sell(buy_sell_list, symbol_df)
 
 def buy_or_sell(buy_sell_list, df):
 
@@ -104,26 +79,52 @@ def buy_or_sell(buy_sell_list, df):
 
 
 def main():
-    #print('Start...app')
+    print('inner main')
     # schedule.every().day.at("01:10").do(sma_trade_logic)
     # schedule.every().day.at("13:10").do(sma_trade_logic)
     #sched.add_job(sma_trade_logic, 'cron', day_of_week='mon-fri', hour='01,13', minute='10')
     
-    sched.scheduled_job(sma_trade_logic,'interval', minutes=10)
+    @sched.scheduled_job('interval', minutes=1)
     
+    
+    def sma_trade_logic():
+        #dataframe for daily candle
+        symbol_df = get_daily_dataframe()
+
+        #colluns media 9days and media 22days
+        symbol_df['9d_sma'] = symbol_df['close'].rolling(9).mean()
+        symbol_df['22d_sma'] = symbol_df['close'].rolling(22).mean()
+
+        symbol_df.set_index('date', inplace=True)
+        symbol_df.index = pd.to_datetime(symbol_df.index, unit='ms')
+
+        symbol_df['Signal'] = np.where(symbol_df['9d_sma'] > symbol_df['22d_sma'], 1, 0)
+
+        symbol_df['Position'] = symbol_df['Signal'].diff()
+
+        symbol_df['Buy'] = np.where(symbol_df['Position'] == 1,symbol_df['close'], np.NaN )
+        symbol_df['Sell'] = np.where(symbol_df['Position'] == -1,symbol_df['close'], np.NaN )
+
+        with open('output.txt', 'w') as f:
+            f.write(
+                    symbol_df.to_string()
+                   )
+
+        buy_sell_list = symbol_df['Position'].tolist()
+        buy_or_sell(buy_sell_list, symbol_df)
     
     sched.start()
 
 if __name__ == "__main__":
     
-    print('Start...app')
     api_key = os.environ['API_KEY']
     api_secret = os.environ['API_SECRET']
     
     client = Client(api_key, api_secret)
 
-    pprint.pprint(client.get_account())
+    #pprint.pprint(client.get_account())
     symbol = 'ETHBTC'
+    print('Start...app')
     
     main()
 
