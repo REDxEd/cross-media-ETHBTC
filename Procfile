@@ -1,3 +1,3 @@
-web: gunicorn main:main
+web: gunicorn main
 
 clock: python clock.py
