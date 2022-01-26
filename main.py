@@ -100,6 +100,7 @@ def buy_or_sell(buy_sell_list, df):
 
 
 def main():
+    print('Start...app')
     schedule.every().day.at("01:10").do(sma_trade_logic)
     schedule.every().day.at("13:10").do(sma_trade_logic)
     while True:
@@ -107,7 +108,7 @@ def main():
 
 if __name__ == "__main__":
     
-    print('Start...')
+    print('Start...app')
     api_key = os.environ['API_KEY']
     api_secret = os.environ['API_SECRET']
     
