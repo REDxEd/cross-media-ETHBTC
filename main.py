@@ -11,15 +11,15 @@ from binance.client import Client
 
 import pandas as pd
 import numpy as np
+#matplotlib is not necessary now
 import matplotlib.pyplot as plt
 
+#necessary to work on heroku
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-
 sched = BlockingScheduler()
-#execute main daily at 01:10 and 13:10
 
-#create a daily candle's dataframe 
+#put binance data in dataframe
 def get_daily_dataframe():
     starttime= '1 month ago UTC'
     interval = '1d'
@@ -31,10 +31,11 @@ def get_daily_dataframe():
     return df
 
 
-
+#trigger process to make orderMarket buy or sell
 def buy_or_sell(buy_sell_list, df):
 
     current_price = current_price = client.get_symbol_ticker(symbol=symbol) 
+    #get the penultimate element of the list because it is the last closed candle
     index=len(buy_sell_list)-1
     
     print()
@@ -80,24 +81,23 @@ def buy_or_sell(buy_sell_list, df):
 
 def main():
     print('inner main')
-    # schedule.every().day.at("01:10").do(sma_trade_logic)
-    # schedule.every().day.at("13:10").do(sma_trade_logic)
-    #sched.add_job(sma_trade_logic, 'cron', day_of_week='mon-fri', hour='01,13', minute='10')
     
-    @sched.scheduled_job('cron', day_of_week='mon,tue,wed,thu,fri,sat,sun', hour='01,18', minute='25,30,35,40,45,50,55')
+    
+    @sched.scheduled_job('cron', day_of_week='mon,tue,wed,thu,fri,sat,sun', hour='01', minute='10')
     
     
     def sma_trade_logic():
-        #dataframe for daily candle
+        #dataframe for daily candles
         symbol_df = get_daily_dataframe()
 
-        #colluns media 9days and media 22days
+        #create colluns, media 9days and media 22days
         symbol_df['9d_sma'] = symbol_df['close'].rolling(9).mean()
         symbol_df['22d_sma'] = symbol_df['close'].rolling(22).mean()
 
         symbol_df.set_index('date', inplace=True)
         symbol_df.index = pd.to_datetime(symbol_df.index, unit='ms')
 
+        '''in this case more work is needed. the logic here would also be used to test signals over a longer period of time. in this way we could calculate PnL. As I am phlegmatic, this task is for later -_-'''
         symbol_df['Signal'] = np.where(symbol_df['9d_sma'] > symbol_df['22d_sma'], 1, 0)
 
         symbol_df['Position'] = symbol_df['Signal'].diff()
@@ -105,12 +105,14 @@ def main():
         symbol_df['Buy'] = np.where(symbol_df['Position'] == 1,symbol_df['close'], np.NaN )
         symbol_df['Sell'] = np.where(symbol_df['Position'] == -1,symbol_df['close'], np.NaN )
 
+        #can be ignored
         with open('output.txt', 'w') as f:
             f.write(
                     symbol_df.to_string()
                    )
-
+                   
         buy_sell_list = symbol_df['Position'].tolist()
+
         buy_or_sell(buy_sell_list, symbol_df)
     
     sched.start()
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     
     client = Client(api_key, api_secret)
 
-    #pprint.pprint(client.get_account())
+
     symbol = 'ETHBTC'
     print('Start...app')
     
