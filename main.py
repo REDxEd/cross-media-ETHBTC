@@ -4,7 +4,7 @@ from operator import contains
 from unicodedata import name
 
 from aiohttp import client
-import confg
+# import confg
 import os
 from binance.client import Client
 import pprint
