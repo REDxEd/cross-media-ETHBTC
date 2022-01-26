@@ -107,6 +107,7 @@ def main():
 
 if __name__ == "__main__":
     
+    print('Start...')
     api_key = os.environ['API_KEY']
     api_secret = os.environ['API_SECRET']
     
