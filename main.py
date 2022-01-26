@@ -12,21 +12,15 @@ import pprint
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import schedule
-import time
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
 sched = BlockingScheduler()
-
-@sched.scheduled_job('interval', minutes=1)
-def timed_job():
-    print('This job is run every minute....')
-
-sched.start()
+#execute main daily at 01:10 and 13:10
 
 #create a daily candle's dataframe 
-'''def get_daily_dataframe():
+def get_daily_dataframe():
     starttime= '1 month ago UTC'
     interval = '1d'
     bars = client.get_historical_klines(symbol, interval, starttime)
@@ -67,9 +61,9 @@ def buy_or_sell(buy_sell_list, df):
 
     current_price = current_price = client.get_symbol_ticker(symbol=symbol) 
     index=len(buy_sell_list)-1
-    now = datetime.now()
+    
     print()
-    print(now)            
+                
     
     if buy_sell_list[index] == 1:
         print(df['Buy'][index])
@@ -90,8 +84,7 @@ def buy_or_sell(buy_sell_list, df):
 
     elif buy_sell_list[index]==-1.0:
         print()            
-        print(df['Sell'][index])
-        print(now)            
+        print(df['Sell'][index])       
         
         if current_price['price'] > df['Sell'][index]:
             quantity=round(float(client.get_asset_balance(asset='ETH')['free'])-0.0001,4)                    
@@ -111,11 +104,15 @@ def buy_or_sell(buy_sell_list, df):
 
 
 def main():
-    print('Start...app')
-    schedule.every().day.at("01:10").do(sma_trade_logic)
-    schedule.every().day.at("13:10").do(sma_trade_logic)
-    while True:
-        schedule.run_pending()
+    #print('Start...app')
+    # schedule.every().day.at("01:10").do(sma_trade_logic)
+    # schedule.every().day.at("13:10").do(sma_trade_logic)
+    #sched.add_job(sma_trade_logic, 'cron', day_of_week='mon-fri', hour='01,13', minute='10')
+    
+    sched.scheduled_job(sma_trade_logic,'interval', minutes=10)
+    
+    
+    sched.start()
 
 if __name__ == "__main__":
     
@@ -128,4 +125,6 @@ if __name__ == "__main__":
     pprint.pprint(client.get_account())
     symbol = 'ETHBTC'
     
-    main()'''
+    main()
+
+
