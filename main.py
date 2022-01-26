@@ -84,7 +84,7 @@ def main():
     # schedule.every().day.at("13:10").do(sma_trade_logic)
     #sched.add_job(sma_trade_logic, 'cron', day_of_week='mon-fri', hour='01,13', minute='10')
     
-    @sched.scheduled_job('cron', every_day=True, hour='01,18', minute='10')
+    @sched.scheduled_job('cron', hour='01,18', minute='25')
     
     
     def sma_trade_logic():
