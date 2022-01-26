@@ -107,8 +107,8 @@ def main():
 
 if __name__ == "__main__":
     
-    api_key = confg.API_KEY
-    api_secret = confg.API_SECRET
+    api_key = os.environ['API_KEY']
+    api_secret = os.environ['API_SECRET']
     
     client = Client(api_key, api_secret)
 
