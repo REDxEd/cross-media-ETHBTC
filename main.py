@@ -1,6 +1,7 @@
 from datetime import datetime
 from multiprocessing.dummy import current_process
 from operator import contains
+import sched
 from unicodedata import name
 
 from aiohttp import client
@@ -13,9 +14,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import schedule
 import time
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+
+sched = BlockingScheduler()
+
+@sched.scheduled_job('interval', minutes=1)
+def timed_job():
+    print('This job is run every minute....')
+
+sched.start()
 
 #create a daily candle's dataframe 
-def get_daily_dataframe():
+'''def get_daily_dataframe():
     starttime= '1 month ago UTC'
     interval = '1d'
     bars = client.get_historical_klines(symbol, interval, starttime)
@@ -117,4 +128,4 @@ if __name__ == "__main__":
     pprint.pprint(client.get_account())
     symbol = 'ETHBTC'
     
-    main()
+    main()'''
