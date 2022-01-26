@@ -57,6 +57,9 @@ def buy_or_sell(buy_sell_list, df):
             except:
                 print('Error create buy order')
             print('**************************************')
+        else:
+            print('Price is not low enough')
+            print('**************************************')
 
     elif buy_sell_list[index]==-1.0:
         print()            
@@ -73,6 +76,10 @@ def buy_or_sell(buy_sell_list, df):
             except:
                 print('Error create sell order')
             print('**************************************')
+        else:
+            print('Price is not high enough')
+            print('**************************************')
+
     else:
             print()            
             print('No signal...')
@@ -83,7 +90,7 @@ def main():
     print('inner main')
     
     
-    @sched.scheduled_job('cron', day_of_week='mon,tue,wed,thu,fri,sat,sun', hour='01', minute='10')
+    @sched.scheduled_job('cron', day_of_week='mon,tue,wed,thu,fri,sat,sun', hour='00, 06, 12, 18', minute='10')
     
     
     def sma_trade_logic():
@@ -118,7 +125,7 @@ def main():
     sched.start()
 
 if __name__ == "__main__":
-    
+    #ambient variables for binance
     api_key = os.environ['API_KEY']
     api_secret = os.environ['API_SECRET']
     
